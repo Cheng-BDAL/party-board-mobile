@@ -10,12 +10,26 @@ function show(){if(!dialog.open){returnFocus=document.activeElement;dialog.showM
 function close(){stopTimer();cancelPress();privateMode=false;current=null;dialog.classList.remove('intimate');dialog.close();body.replaceChildren();if(returnFocus&&returnFocus.isConnected)returnFocus.focus()}
 document.querySelector('#socialClose').onclick=close;
 dialog.addEventListener('cancel',e=>{e.preventDefault();close()});
-function menu(adult=false){privateMode=adult;current=null;clearView();dialog.classList.toggle('intimate',adult);document.querySelector('#socialLabel').textContent=adult?'隐藏彩蛋 · 成人互动':'聚会小游戏';const heading=el('h2',adult?'心跳加一档':'社交小游戏');if(!adult)bindEgg(heading);body.append(heading,el('p',adult?'双方自愿再开始，任何人可随时跳过。':'选一个，直接开玩。一部手机就够。','social-intro'));const grid=el('div','','social-grid');(adult?data.intimate:data.games).forEach(g=>{const b=button('',()=>play(g),'social-tile');b.append(el('small',g.tag),el('strong',g.name),el('span',g.desc));grid.append(b)});body.append(grid);if(!adult){const p=el('p','逛三园题目按常见玩法独立编写，主题方向参考「就喜欢社交」的相关帖子。','social-source');const link=el('a','查看作者原帖');link.href=data.source.url;link.target='_blank';link.rel='noopener';p.append(' ',link);body.append(p)}}
+function menu(adult=false){privateMode=adult;current=null;clearView();dialog.classList.toggle('intimate',adult);document.querySelector('#socialLabel').textContent=adult?'隐藏彩蛋 · 成人互动':'聚会小游戏';const heading=el('h2',adult?'心跳加一档':'社交小游戏');if(!adult)bindEgg(heading);body.append(heading,el('p',adult?'双方自愿再开始，任何人可随时跳过。':'选一个，直接开玩。一部手机就够。','social-intro'));const grid=el('div','','social-grid');(adult?data.intimate:data.games).forEach(g=>{const b=button('',()=>g.id==='taboo'?playTaboo(g):play(g),'social-tile');b.append(el('small',g.tag),el('strong',g.name),el('span',g.desc));grid.append(b)});body.append(grid);if(!adult){const p=el('p','逛三园为参考主题后另写的72题，未收录作者原帖全量题目。其他模块为另行整理的题库。','social-source');const link=el('a','查看作者原帖');link.href=data.source.url;link.target='_blank';link.rel='noopener';p.append(' ',link);body.append(p)}}
 document.querySelector('#openSocial').onclick=()=>{menu(false);show()};
 function adultGate(){clearView();privateMode=false;dialog.classList.add('intimate');document.querySelector('#socialLabel').textContent='你发现了彩蛋';body.append(el('h2','成人亲密互动'),el('p','纸巾接力、饼干挑战、心动指令……','social-intro'));const box=el('div','','social-consent'),label=el('label'),check=el('input');check.type='checkbox';label.append(check,el('span','参与者均已成年，并自愿参与。任何人都可以跳过、换搭档或停止，无需接受惩罚。'));box.append(label);const enter=button('进入彩蛋',()=>{if(check.checked)menu(true)},'primary');enter.disabled=true;check.onchange=()=>enter.disabled=!check.checked;body.append(box,enter,button('返回游戏列表',()=>menu(false),'subtle'));show()}
 function shuffled(values){const out=[...values];for(let i=out.length-1;i>0;i--){const a=new Uint32Array(1);crypto.getRandomValues(a);const j=Math.floor(a[0]/4294967296*(i+1));[out[i],out[j]]=[out[j],out[i]]}return out}
 function pool(){return current.categories?(category==='全部'?Object.values(current.categories).flat():current.categories[category]):current.cards}
 function resetBag(){bag=shuffled(pool());drawn=0}
+function playTaboo(game){
+ current=game;category='全部';clearView();
+ body.append(button('返回游戏列表',()=>menu(false),'subtle'),el('h2',game.name),el('p',game.rules,'social-rules'));
+ const row=el('div','','social-controls'),select=el('select');select.setAttribute('aria-label','禁令分类');
+ ['全部',...Object.keys(game.categories)].forEach(k=>{const option=el('option',k);option.value=k;select.append(option)});
+ row.append(el('label','抽卡范围'),select);body.append(row);
+ const card=el('div','','prompt-card'),meta=el('p','','social-meta');
+ let secret='',visible=false;
+ const reveal=button('亮牌（请其他人点）',()=>{visible=!visible;card.textContent=visible?secret:'先将屏幕朝向其他人，再请别人点亮牌。';reveal.textContent=visible?'遮住卡片':'亮牌（请其他人点）'},'primary');
+ function next(){if(!bag.length)resetBag();const value=bag.pop();drawn++;secret=(game.categories['经典动作'].includes(value)?'不能做：':'不能说：')+value;visible=false;card.textContent='先将屏幕朝向其他人，再请别人点亮牌。';reveal.textContent='亮牌（请其他人点）';meta.textContent=`本轮 ${drawn} / ${pool().length} · 抽完前不重复`}
+ select.onchange=()=>{category=select.value;resetBag();next()};
+ const actions=el('div','','social-buttons');actions.append(reveal,button('换一张（先遮牌）',next));
+ body.append(card,meta,actions,el('p','持牌人别偷看；其他人不要把牌上的内容读出来。','fine'));resetBag();next();
+}
 function updateTimerDisplay(){const num=body.querySelector('.social-time');if(num)num.textContent=remaining>0?remaining+' 秒':'时间到';const btn=body.querySelector('[data-timer-start]');if(btn)btn.textContent=timer?'暂停计时':remaining>0?'开始计时':'重新计时'}
 function timerSeconds(){const select=body.querySelector('[data-duration]');return select?Number(select.value):current.seconds}
 function resetTimer(){stopTimer();remaining=timerSeconds();updateTimerDisplay()}
@@ -35,4 +49,3 @@ title.addEventListener('keyup',cancelPress);
 }
 document.addEventListener('visibilitychange',()=>{cancelPress();if(document.hidden&&timer){remaining=Math.max(0,Math.ceil((deadline-Date.now())/1000));stopTimer();updateTimerDisplay()}});
 })();
-
