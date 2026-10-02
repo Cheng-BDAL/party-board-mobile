@@ -1,7 +1,7 @@
 (() => {
 'use strict';
 const data=window.PartySocial,dialog=document.querySelector('#socialDialog'),body=document.querySelector('#socialBody');
-let current=null,privateMode=false,category='全部',bag=[],drawn=0,timer=null,remaining=0,deadline=0,pressTimer=null,startPoint=null,returnFocus=null;
+let current=null,privateMode=false,category='全部',bag=[],drawn=0,timer=null,remaining=0,deadline=0,pressTimer=null,returnFocus=null;
 const el=(tag,text,cls)=>{const e=document.createElement(tag);if(text)e.textContent=text;if(cls)e.className=cls;return e};
 function button(text,action,cls=''){const b=el('button',text,cls);b.type='button';b.onclick=action;return b}
 function stopTimer(){if(timer)clearInterval(timer);timer=null}
@@ -54,16 +54,17 @@ function resetTimer(){stopTimer();remaining=timerSeconds();updateTimerDisplay()}
 function startTimer(){if(timer){remaining=Math.max(0,Math.ceil((deadline-Date.now())/1000));stopTimer();updateTimerDisplay();return}if(remaining<=0)remaining=timerSeconds();deadline=Date.now()+remaining*1000;timer=setInterval(()=>{remaining=Math.max(0,Math.ceil((deadline-Date.now())/1000));if(remaining===0){stopTimer();if(navigator.vibrate)navigator.vibrate(120)}updateTimerDisplay()},100);updateTimerDisplay()}
 function draw(){resetTimer();if(!bag.length)resetBag();const text=bag.pop();drawn++;body.querySelector('.prompt-card').textContent=text;body.querySelector('.social-meta').textContent=`本轮 ${drawn} / ${pool().length} · 抽完前不重复`;const attribution=body.querySelector('.prompt-source');if(attribution){attribution.replaceChildren();const key=Object.keys(current.categories).find(k=>current.categories[k].includes(text));const src=current.postSources&&current.postSources[key];if(src){attribution.append(el('span',src.label+' · '));const link=el('a',src.url.includes('/explore/')?'查看原帖':'查看作者主页');link.href=src.url;link.target='_blank';link.rel='noopener';attribution.append(link)}else attribution.textContent='来源：另行编写的扩展题库'}}
 function play(game){current=game;category='全部';clearView();body.append(button('返回游戏列表',()=>menu(privateMode),'subtle'),el('h2',game.name),el('p',game.rules,'social-rules'));if(game.categories){const row=el('div','','social-controls'),select=el('select');select.setAttribute('aria-label','逛三园题目分类');['全部',...Object.keys(game.categories)].forEach(k=>{const o=el('option',k);o.value=k;select.append(o)});select.onchange=()=>{category=select.value;resetBag();draw()};row.append(el('label','题目分类'),select);body.append(row)}body.append(el('div','','prompt-card'),el('p','','social-meta'));if(game.seconds){const row=el('div','','social-controls'),select=el('select');select.dataset.duration='';select.setAttribute('aria-label','每轮计时');const choices=[...new Set([3,5,10,15,20,30,60,game.seconds])].sort((a,b)=>a-b);choices.forEach(n=>{const o=el('option',n+' 秒');o.value=n;select.append(o)});select.value=game.seconds;select.onchange=resetTimer;row.append(el('label',game.id==='garden'?'每人时间':'计时时长'),select);body.append(row);const timerBox=el('div','','social-timer'),start=button('开始计时',startTimer);start.dataset.timerStart='';timerBox.append(el('span','','social-time'),start);body.append(timerBox)}const actions=el('div','','social-buttons');actions.append(button(privateMode?'换一张 / 跳过':'换一道题',draw,'primary'));if(game.seconds)actions.append(button(game.id==='garden'?'下一位 · 重新计时':'重置计时',()=>{resetTimer();if(game.id==='garden')startTimer()}));body.append(actions);if(privateMode)body.append(el('p','任意一方不想继续，就跳过或退出。不强制身体接触。','fine'));resetBag();draw()}
-let title=null;
-function cancelPress(){if(pressTimer)clearTimeout(pressTimer);pressTimer=null;startPoint=null;if(title)title.classList.remove('holding')}
-function beginPress(){if(pressTimer||!dialog.open||privateMode||current)return;title.classList.add('holding');pressTimer=setTimeout(()=>{cancelPress();adultGate()},3000)}
-function bindEgg(heading){title=heading;title.classList.add('egg-title');title.tabIndex=0;
-title.addEventListener('pointerdown',e=>{if(e.button!==0)return;startPoint={x:e.clientX,y:e.clientY};beginPress()});
-title.addEventListener('pointermove',e=>{if(startPoint&&Math.hypot(e.clientX-startPoint.x,e.clientY-startPoint.y)>14)cancelPress()});
-['pointerup','pointercancel','pointerleave','blur'].forEach(name=>title.addEventListener(name,cancelPress));
-title.addEventListener('contextmenu',e=>e.preventDefault());
-title.addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();if(!e.repeat)beginPress()}});
-title.addEventListener('keyup',cancelPress);
+let taps=0;
+function cancelPress(){if(pressTimer)clearTimeout(pressTimer);pressTimer=null;taps=0}
+function bindEgg(heading){
+ const title=button(heading.textContent,()=>{
+  if(!dialog.open||privateMode||current)return;
+  taps++;if(pressTimer)clearTimeout(pressTimer);
+  if(taps===5){cancelPress();adultGate();return}
+  pressTimer=setTimeout(cancelPress,1800);
+ },'egg-title');
+ title.addEventListener('contextmenu',e=>e.preventDefault());
+ heading.textContent='';heading.append(title);
 }
 document.addEventListener('visibilitychange',()=>{cancelPress();if(document.hidden&&timer){remaining=Math.max(0,Math.ceil((deadline-Date.now())/1000));stopTimer();updateTimerDisplay()}});
 })();
