@@ -1,5 +1,5 @@
 /* Coordinates follow the supplied high-resolution photograph (1368px reference width).
-   Text is transcribed from that photograph; the finish rule was confirmed by the user. */
+   Text follows the supplied photograph and printed game manual. */
 const rawBoard = [
  [225,1460,'START','所有棋子从这里出发。','start'],
  [366,1396,'微醺热身局','全场碰杯\n自己喝2杯','cheers'],
@@ -26,7 +26,7 @@ const rawBoard = [
  [404,899,'憋笑挑战','讲个地狱笑话/\n做鬼脸谁笑谁喝1杯\n（含自己）','task'],
  [504,843,'全员碰杯','全员碰杯','cheers'],
  [510,750,'终点杯','向「终点杯」\n倒任意酒','pour'],
- [407,660,'安全屋','安全屋','safe'],
+ [407,660,'安全屋','本轮免疫所有指令及惩罚波及。\n手机版按进入后保护到自己下次掷骰前执行。','safe'],
  [288,660,'？','真心话 / 大冒险','question'],
  [193,566,'纯爱对视','找人近距离对视\n先笑/躲闪/\n眨眼的喝1杯','task'],
  [218,424,'社交大无语','摆油腻姿势求合影\n被拒后退2步','photo'],
@@ -38,7 +38,7 @@ const rawBoard = [
  [858,486,'再掷一次骰子','再掷一次骰子\n或者自己罚1杯','reroll'],
  [958,370,'终点杯','自己喝任意\n向「终点杯」加同等量','pour'],
  [1074,350,'全员碰杯','全员碰杯','cheers'],
- [1194,380,'安全屋','安全屋','safe'],
+ [1194,380,'安全屋','本轮免疫所有指令及惩罚波及。\n手机版按进入后保护到自己下次掷骰前执行。','safe'],
  [1232,500,'？','真心话 / 大冒险','question'],
  [1193,614,'乾坤大挪移','选1人换棋子位置\n被拒ta罚1杯\n成功你罚1杯','swap'],
  [1138,688,'体力局','抱左边玩家蹲3个\n做不到罚1杯','task'],
@@ -49,8 +49,8 @@ const rawBoard = [
  [976,1020,'接头小分队','指定两位玩家\n喝交杯酒','task'],
  [915,927,'后退骰子','自己喝1杯\n掷骰子后退\n对应格数','backroll'],
  [892,833,'社死现场','公开浏览器历史记录\n或者自己喝1杯','task'],
- [862,739,'安全屋','安全屋','safe'],
- [780,740,'终点','除到达终点的玩家外，其余玩家一起喝完终点杯。','finish']
+ [862,739,'安全屋','本轮免疫所有指令及惩罚波及。\n手机版按进入后保护到自己下次掷骰前执行。','safe'],
+ [780,740,'终点','首位准确到达终点的玩家成为本局「头号输家」，由该玩家接受终点杯惩罚，本局立即结束。可用软饮替代。','finish']
 ];
 // Cell centres on the replacement, unobstructed photograph (1279 x 1310).
 // Stable IDs keep saved games and all existing rules compatible.

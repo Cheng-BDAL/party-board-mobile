@@ -3,4 +3,5 @@
 /* Square, centred board surface; preserve the supplied print pixel-for-pixel. */
 #board{aspect-ratio:1 / 1;background:#1b1c1d;isolation:isolate}
 #board img{width:100%;height:100%;aspect-ratio:1 / 1;object-fit:fill;filter:contrast(1.1) brightness(1.025)}
+.rules-link{width:100%;margin-top:12px}.rules-copy{line-height:1.8;font-size:15px}.rules-copy p{margin:15px 0}.player-row{flex-wrap:wrap}.player-row .name{min-width:60px}.use-shield{font-size:12px;padding:8px;min-height:44px;color:var(--blue)}#eventOptions input{width:100%;margin-top:10px;padding:12px;border:1px solid #5b6370;border-radius:8px;background:#1b1f24;color:white;font:inherit}#eventOptions input[hidden]{display:none}#notice{white-space:pre-line}
 
