@@ -12,7 +12,7 @@ document.querySelector('#socialClose').onclick=close;
 dialog.addEventListener('cancel',e=>{e.preventDefault();close()});
 function menu(adult=false){privateMode=adult;current=null;clearView();dialog.classList.toggle('intimate',adult);document.querySelector('#socialLabel').textContent=adult?'隐藏彩蛋 · 成人互动':'聚会小游戏';const heading=el('h2',adult?'心跳加一档':'社交小游戏');if(!adult)bindEgg(heading);body.append(heading,el('p',adult?'双方自愿再开始，任何人可随时跳过。':'选一个，直接开玩。一部手机就够。','social-intro'));const grid=el('div','','social-grid');(adult?data.intimate:data.games).forEach(g=>{const b=button('',()=>g.id==='taboo'?playTaboo(g):g.id==='garden'?playGarden(g):play(g),'social-tile');b.append(el('small',g.tag),el('strong',g.name),el('span',g.desc));grid.append(b)});body.append(grid);if(!adult){const p=el('p','题库已补充小红书帖子主题；新增题目下可查看来源，基础题目单独标注。','social-source');const link=el('a','查看作者原帖');link.href=data.source.url;link.target='_blank';link.rel='noopener';p.append(' ',link);body.append(p)}}
 document.querySelector('#openSocial').onclick=()=>{menu(false);show()};
-function adultGate(){clearView();privateMode=false;dialog.classList.add('intimate');document.querySelector('#socialLabel').textContent='你发现了彩蛋';body.append(el('h2','成人亲密互动'),el('p','纸巾接力、饼干挑战、心动指令……','social-intro'));const box=el('div','','social-consent'),label=el('label'),check=el('input');check.type='checkbox';label.append(check,el('span','参与者均已成年，并自愿参与。任何人都可以跳过、换搭档或停止，无需接受惩罚。'));box.append(label);const enter=button('进入彩蛋',()=>{if(check.checked)menu(true)},'primary');enter.disabled=true;check.onchange=()=>enter.disabled=!check.checked;body.append(box,enter,button('返回游戏列表',()=>menu(false),'subtle'));show()}
+function adultGate(){clearView();privateMode=false;dialog.classList.add('intimate');document.querySelector('#socialLabel').textContent='你发现了彩蛋';body.append(el('h2','成人亲密互动'),el('p','接吻挑战、亲密国王、恋爱即兴……12种互动等你发现。','social-intro'));const box=el('div','','social-consent'),label=el('label'),check=el('input');check.type='checkbox';label.append(check,el('span','参与者均已成年，并自愿参与。任何人都可以跳过、换搭档或停止，无需接受惩罚。'));box.append(label);const enter=button('进入彩蛋',()=>{if(check.checked)menu(true)},'primary');enter.disabled=true;check.onchange=()=>enter.disabled=!check.checked;body.append(box,enter,button('返回游戏列表',()=>menu(false),'subtle'));show()}
 function shuffled(values){const out=[...values];for(let i=out.length-1;i>0;i--){const a=new Uint32Array(1);crypto.getRandomValues(a);const j=Math.floor(a[0]/4294967296*(i+1));[out[i],out[j]]=[out[j],out[i]]}return out}
 function pool(){return current.categories?(category==='全部'?Object.values(current.categories).flat():current.categories[category]):current.cards}
 function resetBag(){bag=shuffled(pool());drawn=0}
@@ -20,7 +20,7 @@ function showSource(text,target){
  if(!target)return;target.replaceChildren();
  const key=current.categories&&Object.keys(current.categories).find(k=>current.categories[k].includes(text));
  const src=current.cardSources?.[text]||current.postSources?.[key];
- if(!src){target.textContent=current.id==='garden'?'来源：另行编写的扩展题库':'来源：基础题库，另行整理';return}
+ if(!src){target.textContent=privateMode?'来源：彩蛋互动题库，另行编写':current.id==='garden'?'来源：另行编写的扩展题库':'来源：基础题库，另行整理';return}
  target.append(el('span',src.label||(src.name+' · '+(src.adaptation||'按题意整理'))));
  const link=el('a',src.url.includes('/user/profile/')?' 查看作者主页':' 查看原帖');link.href=src.url;link.target='_blank';link.rel='noopener';target.append(link);
  if(src.likes)target.append(el('span',` · 核对时 ${src.likes}赞 / ${src.saves}收藏（${src.checked}）`));
